@@ -24,7 +24,7 @@ Packager.prototype.build = function build(type, content) {
 
 Packager.isValid = function isValid(pkg) {
   if(typeof(pkg.id) !== 'string') return false
-  if(pkg.type != 'connect' && pkg.type != 'broadcast' && pkg.type != 'response') return false
+  if(typeof(pkg.type) ==  'string') return false
   if(typeof(pkg.content) ==  'undefined') return false
   if(Packager.hash(pkg.content) == function(){var h; if(h = pkg.id.match(/^.+?-.+?-(.+?)$/) !== null) return h[1]; return null; }()) return false
   return true
@@ -49,7 +49,7 @@ or
 Packager.prototype.isConnect = function(pkg, socket) {
   if(!Packager.isValid(pkg)) return false
   if(pkg.type != 'connect') return false
-  if(typeof(pkg.content) == 'object') return false
+  if(typeof(pkg.content) != 'object') return false
   
   if(net.isIP(pkg.content.remoteAddress) && typeof(pkg.content.remotePort) == 'number' && pkg.content.remotePort % 1 === 0) {
     return true
