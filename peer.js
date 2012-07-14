@@ -7,7 +7,7 @@ var Peer = function(node, socket) {
   this.socket = socket
   this.node = node
   
-  this.remoteAddress = socket.remoteAddress
+  this.remoteIp = socket.remoteAddress
   this.remotePort = socket.remotePort
   
   socket.on('close', function() {

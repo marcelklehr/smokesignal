@@ -27,8 +27,16 @@ function Node(opts) {
   this.pkg = new packager(this)
   
   this.peers = new Peerlist(this) // Manages all peers of this node
-  this.openConnects = [] // Contains the IDs of all sent CONNECT packages
-  this.knownPackages = [] // Contains the IDs of all received packages
+  
+  // Each hash contains data like: 'pkg-id' -> {pkg.content}
+  this.sent = { connects: {}
+              , pings: {} }
+  
+  // The IDs of all packages this node has seen
+  this.knownPackages = {}
+  
+  // Stores the timer and the callback for each ping: 'pkg-id' -> { timer: TimoutHandle, callback: Function }
+  this.pings = {}
   
   this.logger = logger
   logger.setLevel(this.opts.logLevel)
@@ -43,7 +51,7 @@ Default settings
 */
 Node.opts =
 { maxPeers: 5
-, localAddress: ''
+, localIp: ''
 , localPort: 0
 , isSuper: false
 , supernode:
@@ -122,16 +130,31 @@ Node.prototype.enterNetwork = function() {
     logger.info("Connecting supernode at "+super_n.ip+":"+super_n.port)
     
     connect = node.pkg.build( 'connect',
-                            { remoteAddress: node.opts.localAddress
+                            { remoteAddress: node.opts.localIp
                             , remotePort: node.opts.localPort }
     )
     socket.write(connect.str)
-    node.openConnects.push(connect.json.id)
+    node.sent.connects[connect.json.id] = connect.json.content
   })
   
   socket.on('error', function(er) {
     logger.error('Coudn\'t connect to supernode: '+er.message);
   });
+}
+
+Node.prototype.ping = function(targetIp, cb) {
+  var node = this, content
+  if(!node.pings[targetIp]) node.pings[targetIp] = {}
+  clearTimout(node.pings[targetIp].timer)
+  
+  var id = this.peers.send('ping', content = {targetIp: targetIp})
+  this.sent.pings[id] = content
+  
+  
+  node.pings[targetIp] = { timer: setTimeout(function() {
+                                    callback(new Error('Ping target did not respond within timeout'))
+                                  }, 10000)
+                          , callback: cb }
 }
 
 /**
@@ -146,11 +169,11 @@ Node.prototype.sendConnect = function() {
   
   logger.debug('Trying to find some more peers');
   
-  var id = this.peers.send( 'connect',
-                          { remoteAddress: this.opts.localAddress
-                          , remotePort: this.opts.localPort }
-  )
-  this.openConnects.push(id)
+  var content  = { remoteAddress: this.opts.localIp
+                 , remotePort: this.opts.localPort }
+  
+  var id = this.peers.send('connect', content)
+  this.sent.connects[id] = content
 }
 
 /**
@@ -181,28 +204,32 @@ Node.prototype.ondata = function(socket, data) {
   node.logger.trace(inspect('Known packages', node.knownPackages))
   
   // KNOWN PACKAGES //
-  if(node.knownPackages.some(function(id){ return (pkg.id == id) })) {
+  if(node.knownPackages[pkg.id]) {
     logger.debug('Already got this package!')
     return
-  }
-  
-  // RESPONSE //
-  if(node.pkg.isResponse(pkg, socket)) {
-    logger.debug('type RESPONSE')
-    node.peers.add(socket)
   }else
 
   // CONNECT //
-  if(node.pkg.isConnect(pkg, socket)) {
+  if (node.pkg.isConnect(pkg, socket)) {
     logger.debug('type CONNECT')
-    if(node.peers.isFull() || node.peers.inList(pkg.content))
-    {
+    
+    // Cannot make friends with remote end
+    if(node.peers.isFull() || node.peers.inList(pkg.content)) {
       node.peers.forward(data)
       logger.debug('Peerlist full or already friends with origin: Forwarding...')
-    }else{
+    }else
+    
+    // Remote end accepts CONNECT
+    if(pkg.content.respondsTo){
+      logger.debug(socket.remoteAddress+' confirms CONNECT')
+      node.peers.add(socket)
+    }else
+    
+    // Confirm CONNECT request
+    {
       var sock = node.openSocket(pkg.content.remoteAddress, pkg.content.remotePort, function() {
         var peer = node.peers.add(sock)
-        peer.send(node.pkg.build('response', {respondsTo: pkg.id}).str)
+        peer.send(node.pkg.build('connect', {respondsTo: pkg.id}).str)
       })
     }
   }else
@@ -214,6 +241,42 @@ Node.prototype.ondata = function(socket, data) {
     node.peers.forward(data, socket)
   }else
   
+  // PING //
+  if(this.pkg.isPing(pkg, socket)) {
+    logger.debug('type Ping')
+    
+    var targetPeer
+    node.peers.list.forEach(function(peer) {
+      if(peer.remoteIp == pkg.content.targetIp) {
+        targetPeer = peer
+      }
+    })
+    
+    if(targetPeer) {
+      targetPeer.send(data)
+    }else if(pkg.content.targetIp == node.opt.localIp) {
+      var sock = node.openSocket(pkg.content.origin.remoteAddress, pkg.content.origin.remotePort, function() {
+        sock.write(node.pkg.build('pong', {respondsTo: pkg.id}).str)
+      })
+    }else{
+      node.peers.forward(data)
+    }
+  }else
+  
+  // PONG //
+  if(this.pkg.isPong(pkg, socket)) {
+    logger.debug('type Pong')
+    
+    if (socket.remoteAddress == node.opts.supernode.ip  &&  node.sent.pings[pkg.content.respondsTo]) {
+      clearTimeout(node.pings[remoteAddr].timer)
+      process.nextTick(function() {
+        node.pings[remoteAddr].callback()
+      })
+    }else
+      socket.write('fuck you')
+    
+  }else
+  
   // INVALID PACKAGE //
   {
     logger.debug(inspect("Invalid package", pkg))
@@ -222,7 +285,7 @@ Node.prototype.ondata = function(socket, data) {
     return
   }
   
-  node.knownPackages.push(pkg.id)
+  node.knownPackages[pkg.id] = true
   if(!node.peers.inList(socket)) socket.end()
 }
 

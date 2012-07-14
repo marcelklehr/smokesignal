@@ -57,16 +57,18 @@ Peerlist.prototype.isFull = function() {
 
 /**
 Checks if a socket is already on the list of peers
+
+Tip: This works with every Object providing a "remoteAddress" property!
 */
 Peerlist.prototype.inList= function(socket) {
   return this.list.some(function(peer) {
-    return (peer.remoteAddress == socket.remoteAddress /*&& peer.remotePort == socket.remotePort*/)
+    return (peer.remoteAddress == socket.remoteAddress)
   })
 }
 
 
 /**
-Sends $data to all peers excpet to $except
+Sends $data to all peers excpet to $except (a socket)
 */
 Peerlist.prototype.forward = function(data, except) {
   for(var i=0; i < this.list.length; i++) {
@@ -79,8 +81,8 @@ Peerlist.prototype.forward = function(data, except) {
 Sends a package of $type with $content to all peers
 */
 Peerlist.prototype.send = function(type, content) {
-  data = this.node.pkg.build(type, content);
-  this.forward(data.str);
-  this.node.knownPackages.push(data.json.id);
-  return data.json.id;
+  data = this.node.pkg.build(type, content)
+  this.forward(data.str)
+  this.node.knownPackages[data.json.id] = true
+  return data.json.id
 }
