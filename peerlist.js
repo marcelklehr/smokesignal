@@ -24,7 +24,7 @@ Removes a peer object from the list
 */
 Peerlist.prototype.remove = function(peer) {
   this.list.splice(this.list.indexOf(peer), 1);
-  this.node.logger.info('Removed peer: '+peer.remoteAddress+':'+peer.remotePort+"\n");
+  this.node.logger.info('Removed peer: '+peer.remoteIp+':'+peer.remotePort);
   if(this.list.length == 0) this.node.emit('disconnect')
 }
 
@@ -62,7 +62,7 @@ Tip: This works with every Object providing a "remoteAddress" property!
 */
 Peerlist.prototype.inList= function(socket) {
   return this.list.some(function(peer) {
-    return (peer.remoteAddress == socket.remoteAddress)
+    return (peer.socket.remoteAddress == socket.remoteAddress)
   })
 }
 
