@@ -201,12 +201,19 @@ Node.prototype.ondata = function(socket, data) {
   
   node.logger.trace(inspect('Package data', pkg))
   
-  node.logger.trace(inspect('Known packages', node.knownPackages))
+  var cb = function() {
+    node.knownPackages[pkg.id] = true
+    if(!node.peers.inList(socket)) {
+      logger.trace(inspect('Peerlist', node.peers.dump()))
+      logger.trace('Closing connection to non-peer '+socket.remoteAddress)
+      socket.end()
+    }
+  }
   
   // KNOWN PACKAGES //
   if(node.knownPackages[pkg.id]) {
+    node.logger.trace(inspect('Known packages', node.knownPackages))
     logger.debug('Already got this package!')
-    return
   }else
 
   // CONNECT //
@@ -217,12 +224,14 @@ Node.prototype.ondata = function(socket, data) {
     if(node.peers.isFull() || node.peers.inList(pkg.content)) {
       node.peers.forward(data)
       logger.debug('Peerlist full or already friends with origin: Forwarding...')
+      cb()
     }else
     
     // Remote end accepts CONNECT
     if(pkg.content.respondsTo){
       logger.debug(socket.remoteAddress+' confirms CONNECT')
       node.peers.add(socket)
+      cb()
     }else
     
     // Confirm CONNECT request
@@ -230,6 +239,7 @@ Node.prototype.ondata = function(socket, data) {
       var sock = node.openSocket(pkg.content.remoteAddress, pkg.content.remotePort, function() {
         var peer = node.peers.add(sock)
         peer.send(node.pkg.build('connect', {respondsTo: pkg.id}).str)
+        cb()
       })
     }
   }else
@@ -239,6 +249,7 @@ Node.prototype.ondata = function(socket, data) {
     logger.debug('type BROADCAST')
     node.emit('broadcast', pkg.content)
     node.peers.forward(data, socket)
+    cb()
   }else
   
   // PING //
@@ -254,12 +265,15 @@ Node.prototype.ondata = function(socket, data) {
     
     if(targetPeer) {
       targetPeer.send(data)
+      cb()
     }else if(pkg.content.targetIp == node.opt.localIp) {
       var sock = node.openSocket(pkg.content.origin.remoteAddress, pkg.content.origin.remotePort, function() {
         sock.write(node.pkg.build('pong', {respondsTo: pkg.id}).str)
+        cb()
       })
     }else{
       node.peers.forward(data)
+      cb()
     }
   }else
   
@@ -272,21 +286,20 @@ Node.prototype.ondata = function(socket, data) {
       process.nextTick(function() {
         node.pings[remoteAddr].callback()
       })
-    }else
+      cb()
+    }else{
       socket.write('fuck you')
-    
+      cb()
+    }
   }else
   
   // INVALID PACKAGE //
   {
     logger.debug(inspect("Invalid package", pkg))
     logger.debug("Closing connection")
-    socket.end()
-    return
+    socket.end('fuck you')
+    return cb()
   }
-  
-  node.knownPackages[pkg.id] = true
-  if(!node.peers.inList(socket)) socket.end()
 }
 
 /**
