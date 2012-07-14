@@ -14,7 +14,7 @@ Packager.hash = function hash(o) {
 }
 
 Packager.prototype.generateId = function generateId(content) {
-  return this.node.opts.localIp+'-'+Math.round(Date.now()/1000)+'-'+Packager.hash(content)
+  return this.node.opts.localIp+'-'+Date.now()+'.'+process.hrtime()[1]+'-'+Packager.hash(content)
 }
 
 Packager.prototype.build = function build(type, content) {
