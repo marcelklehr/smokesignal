@@ -35,7 +35,7 @@ function Node(opts) {
   // The IDs of all packages this node has seen
   this.knownPackages = {}
   
-  // Stores the timer and the callback for each ping: 'pkg-id' -> { timer: TimoutHandle, callback: Function }
+  // Stores the timer and the callback for each ping: 'pkg-id' -> { timer: TimeoutHandle, callback: Function }
   this.pings = {}
   
   this.logger = logger
@@ -146,7 +146,7 @@ Node.prototype.enterNetwork = function() {
 Node.prototype.ping = function(targetIp, cb) {
   var node = this, content
   if(!node.pings[targetIp]) node.pings[targetIp] = {}
-  clearTimout(node.pings[targetIp].timer)
+  clearTimeout(node.pings[targetIp].timer)
   
   var id = this.peers.send('ping', content = {targetIp: targetIp})
   this.sent.pings[id] = content
