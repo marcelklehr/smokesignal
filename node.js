@@ -229,7 +229,7 @@ Node.prototype.ondata = function(socket, data) {
     
     // Cannot make friends with remote end
     if(node.peers.isFull() || node.peers.inList(pkg.content)) {
-      node.peers.forward(data)
+      node.peers.forward(data, /*except:*/socket)
       logger.debug('Peerlist full or already friends with origin: Forwarding...')
       cb()
     }else
@@ -255,7 +255,7 @@ Node.prototype.ondata = function(socket, data) {
   if(this.pkg.isBroadcast(pkg, socket)) {
     logger.debug('type BROADCAST')
     node.emit('broadcast', pkg.content)
-    node.peers.forward(data, socket)
+    node.peers.forward(data, /*except:*/socket)
     cb()
   }else
   
@@ -283,7 +283,7 @@ Node.prototype.ondata = function(socket, data) {
       cb()
     }else{
       logger.debug('I don\'t know the ping target. Forwarding to all peers.')
-      node.peers.forward(data)
+      node.peers.forward(data, /*except:*/socket)
       cb()
     }
   }else
