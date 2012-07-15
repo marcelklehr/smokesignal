@@ -7,7 +7,7 @@ var net      = require('net')
 
 var logger = log4js.getLogger('p2p')
 
-var inspect = function(label, obj) {
+logger.inspect = function(label, obj) {
   return label+'\n'+JSON.stringify(obj, null, '\t')
 }
 
@@ -43,7 +43,6 @@ function Node(opts) {
 }
 
 module.exports = Node
-module.exports.inspect = inspect
 
 util.inherits(Node, events.EventEmitter)
 
@@ -200,20 +199,20 @@ Node.prototype.ondata = function(socket, data) {
     return
   }
   
-  node.logger.trace(inspect('Package data', pkg))
+  node.logger.trace(node.logger.inspect('Package data', pkg))
   
   var cb = function() {
     node.knownPackages[pkg.id] = true
     if(!node.peers.inList(socket)) {
-      logger.trace(inspect('Peerlist', node.peers.dump()))
-      logger.trace('Closing connection to non-peer '+socket.remoteAddress)
+      node.logger.trace(node.logger.inspect('Peerlist', node.peers.dump()))
+      node.logger.trace('Closing connection to non-peer '+socket.remoteAddress)
       socket.end()
     }
   }
   
   // KNOWN PACKAGES //
   if(node.knownPackages[pkg.id]) {
-    node.logger.trace(inspect('Known packages', node.knownPackages))
+    node.logger.trace(node.logger.inspect('Known packages', node.knownPackages))
     logger.debug('Already got this package!')
   }else
 
@@ -296,7 +295,7 @@ Node.prototype.ondata = function(socket, data) {
   
   // INVALID PACKAGE //
   {
-    logger.debug(inspect("Invalid package", pkg))
+    logger.debug(logger.inspect("Invalid package", pkg))
     logger.debug("Closing connection")
     socket.end('fuck you')
     return cb()
@@ -319,7 +318,7 @@ Node.prototype.connect = function(ip, port, func) {
   })
   
   setInterval(function() {
-    node.logger.debug(inspect('Peerlist ('+node.peers.list.length+'/'+node.opts.maxPeers+')', node.peers.dump()))
+    node.logger.debug(node.logger.inspect('Peerlist ('+node.peers.list.length+'/'+node.opts.maxPeers+')', node.peers.dump()))
     if(!node.peers.isFull()) node.sendConnect()
   }, node.opts.updateInterval)
   node.enterNetwork()
