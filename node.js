@@ -326,7 +326,6 @@ Node.prototype.connect = function(ip, port, func) {
   })
   
   setInterval(function() {
-    node.logger.debug(node.logger.inspect('Peerlist ('+node.peers.list.length+'/'+node.opts.maxPeers+')', node.peers.dump()))
     if(!node.peers.isFull()) node.sendConnect()
   }, node.opts.updateInterval)
   node.enterNetwork()
