@@ -196,6 +196,7 @@ Node.prototype.ondata = function(socket, data) {
   var node = this
   logger.debug('')
   logger.debug('New package from '+socket.remoteAddress)
+  var remoteAddress = socket.remoteAddress
   
   // PARSE DATA //
   try {
@@ -212,7 +213,7 @@ Node.prototype.ondata = function(socket, data) {
     node.knownPackages[pkg.id] = true
     if(!node.peers.inList(socket)) {
       node.logger.trace(node.logger.inspect('Peerlist', node.peers.dump()))
-      node.logger.trace('Closing connection to non-peer '+socket.remoteAddress)
+      node.logger.trace('Closing connection to non-peer '+remoteAddress)
       socket.end()
     }
   }
