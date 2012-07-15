@@ -106,8 +106,8 @@ Packager.prototype.isPing = function(pkg, socket) {
     
     assert(typeof(pkg.content.origin) == 'object')
     assert(net.isIP(pkg.content.origin.remoteAddress))
-    assert(typeof(pkg.content.remotePort) == 'number')
-    assert(pkg.content.remotePort % 1 === 0)
+    assert(typeof(pkg.content.origin.remotePort) == 'number')
+    assert(pkg.content.origin.remotePort % 1 === 0)
   }catch(e) {
     return false
   }

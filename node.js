@@ -147,12 +147,15 @@ Node.prototype.ping = function(targetIp, cb) {
   if(!node.pings[targetIp]) node.pings[targetIp] = {}
   clearTimeout(node.pings[targetIp].timer)
   
-  var id = this.peers.send('ping', content = {targetIp: targetIp})
+  logger.info('Sending PING to '+targetIp)
+  var id = this.peers.send('ping', content = { targetIp: targetIp
+                                             , origin: { remoteAddress: node.opts.localIp
+                                                       , remotePort: node.opts.localPort } })
   this.sent.pings[id] = content
   
   
   node.pings[targetIp] = { timer: setTimeout(function() {
-                                    callback(new Error('Ping target did not respond within timeout'))
+                                    cb(new Error('Ping target did not respond within timeout'))
                                   }, 10000)
                           , callback: cb }
 }
@@ -188,13 +191,14 @@ The reactor. It decides what to do with incoming packages
 */
 Node.prototype.ondata = function(socket, data) {
   var node = this
-  logger.debug("A package arrived from "+socket.remoteAddress)
+  logger.debug('')
+  logger.debug('New package from '+socket.remoteAddress)
   
   // PARSE DATA //
   try {
     pkg = JSON.parse(data)
   } catch(e) {
-    logger.info('Parse error: '+e.messae+'\n'+data)
+    logger.info('Parse error: '+e.message+'\n'+data)
     socket.end()
     return
   }
@@ -213,7 +217,7 @@ Node.prototype.ondata = function(socket, data) {
   // KNOWN PACKAGES //
   if(node.knownPackages[pkg.id]) {
     node.logger.trace(node.logger.inspect('Known packages', node.knownPackages))
-    logger.debug('Already got this package!')
+    logger.debug('That\'s a known package! Drop it.')
   }else
 
   // CONNECT //
@@ -263,15 +267,19 @@ Node.prototype.ondata = function(socket, data) {
       }
     })
     
-    if(targetPeer) {
-      targetPeer.send(data)
-      cb()
-    }else if(pkg.content.targetIp == node.opt.localIp) {
+    if(pkg.content.targetIp == node.opts.localIp) {
+      logger.debug('I\'m the ping target!')
       var sock = node.openSocket(pkg.content.origin.remoteAddress, pkg.content.origin.remotePort, function() {
+        logger.debug('Responding with PONG to '+pkg.content.origin.remoteAddress+':'+pkg.content.origin.remotePort)
         sock.write(node.pkg.build('pong', {respondsTo: pkg.id}).str)
         cb()
       })
+    }else if(targetPeer) {
+      logger.debug('The ping target is one of my peers. Forwarding...')
+      targetPeer.send(data)
+      cb()
     }else{
+      logger.debug('I don\'t know the ping target. Forwarding to all peers.')
       node.peers.forward(data)
       cb()
     }
@@ -282,9 +290,9 @@ Node.prototype.ondata = function(socket, data) {
     logger.debug('type Pong')
     
     if (socket.remoteAddress == node.opts.supernode.ip  &&  node.sent.pings[pkg.content.respondsTo]) {
-      clearTimeout(node.pings[remoteAddr].timer)
+      clearTimeout(node.pings[socket.remoteAddress].timer)
       process.nextTick(function() {
-        node.pings[remoteAddr].callback()
+        node.pings[socket.remoteAddress].callback()
       })
       cb()
     }else{
