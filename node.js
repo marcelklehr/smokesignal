@@ -196,7 +196,7 @@ Node.prototype.ondata = function(socket, data) {
   
   // PARSE DATA //
   try {
-    pkg = JSON.parse(data)
+    var pkg = JSON.parse(data)
   } catch(e) {
     logger.info('Parse error: '+e.message+'\n'+data)
     socket.end()
@@ -270,6 +270,7 @@ Node.prototype.ondata = function(socket, data) {
     if(pkg.content.targetIp == node.opts.localIp) {
       logger.debug('I\'m the ping target!')
       var sock = node.openSocket(pkg.content.origin.remoteAddress, pkg.content.origin.remotePort, function() {
+        logger.trace(logger.inspect('[node#273]Package data:', pkg))
         logger.debug('Responding with PONG to '+pkg.content.origin.remoteAddress+':'+pkg.content.origin.remotePort)
         sock.write(node.pkg.build('pong', {respondsTo: pkg.id}).str)
         cb()
