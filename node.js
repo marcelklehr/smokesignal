@@ -43,6 +43,7 @@ function Node(opts) {
 }
 
 module.exports = Node
+module.exports.inspect = inspect
 
 util.inherits(Node, events.EventEmitter)
 
@@ -337,8 +338,4 @@ Node.prototype.spawnNetwork = function(func) {
     logger.info("Supernode is listening")
     node.emit('listen')
   })
-  
-  setInterval(function() {
-    node.logger.debug(inspect('Peerlist ('+node.peers.list.length+'/'+node.opts.maxPeers+')', node.peers.dump()))
-  }, node.opts.updateInterval)
 }

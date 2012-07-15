@@ -1,4 +1,5 @@
 var Peer = require('./peer.js')
+var inspect = require('./node.js').inspect
 
 function Peerlist(node) {
   this.node = node
@@ -16,6 +17,7 @@ Peerlist.prototype.add = function(socket) {
   if(this.list.length == 0) node.emit('connect')
   this.list.push(peer)
   this.node.logger.info('Added new peer: '+socket.remoteAddress+':'+socket.remotePort)
+  node.logger.debug(inspect('Peerlist ('+this.list.length+'/'+node.opts.maxPeers+')', this.dump()))
   return peer
 }
 
@@ -23,8 +25,10 @@ Peerlist.prototype.add = function(socket) {
 Removes a peer object from the list
 */
 Peerlist.prototype.remove = function(peer) {
+  var node = this.node
   this.list.splice(this.list.indexOf(peer), 1);
   this.node.logger.info('Removed peer: '+peer.remoteIp+':'+peer.remotePort);
+  node.logger.debug(inspect('Peerlist ('+this.list.length+'/'+node.opts.maxPeers+')', this.dump()))
   if(this.list.length == 0) this.node.emit('disconnect')
 }
 
