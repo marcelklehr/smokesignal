@@ -15,8 +15,6 @@ var Peer = function(node, socket) {
     peer.close();
 	  peer.node.sendConnect();
   });
-  
-  socket.setNoDelay(true);
 }
 module.exports = Peer
 

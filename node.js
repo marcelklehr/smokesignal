@@ -81,6 +81,7 @@ Node.createNode = function createNode(opts) {
   var node = new Node(opts)
   node.server = net.createServer(function (socket) {
     logger.debug('Incoming Connection from '+socket.remoteAddress+':'+socket.remotePort)
+    socket.setNoDelay(true)
     socket.setEncoding('utf8')
     socket.on('data', function(data) {
       node.ondata(socket, data)
@@ -103,6 +104,8 @@ Opens a socket to the specified target and binds it to this node
 Node.prototype.openSocket = function(ip, port, func) {
   var node = this
   var socket = net.createConnection(port, ip, function() {
+    socket.setNoDelay(true)
+    socket.setEncoding('utf8')
     socket.on('data', function(data) {
       node.ondata(socket, data)
     })
@@ -270,7 +273,6 @@ Node.prototype.ondata = function(socket, data) {
     if(pkg.content.targetIp == node.opts.localIp) {
       logger.debug('I\'m the ping target!')
       var sock = node.openSocket(pkg.content.origin.remoteAddress, pkg.content.origin.remotePort, function() {
-        logger.trace(logger.inspect('[node#273]Package data:', pkg))
         logger.debug('Responding with PONG to '+pkg.content.origin.remoteAddress+':'+pkg.content.origin.remotePort)
         sock.write(node.pkg.build('pong', {respondsTo: pkg.id}).str)
         cb()
