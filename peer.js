@@ -11,10 +11,16 @@ var Peer = function(node, socket) {
   this.remotePort = socket.remotePort
   
   socket.on('close', function() {
-    peer.node.logger.info("Peer closed connection");
+    peer.node.logger.info("Closing connection to peer "+peer.remoteIp);
     peer.close();
 	  peer.node.sendConnect();
-  });
+  })
+  
+  socket.removeAllListeners('error')
+  socket.on('error', function(e) {
+    peer.node.logger.error('Error in socket '+peer.remoteIp)
+    peer.close()
+  })
 }
 module.exports = Peer
 
