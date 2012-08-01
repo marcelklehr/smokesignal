@@ -1,11 +1,8 @@
-{
-  "name": "p2p",
-  "version": "0.0.0",
-  "description": "Build peer to peer networks with node.",
-  "main": "node.js",
-  "dependencies": {
-    "log4js": "latest"
-  },
-  "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)",
-  "license": "MIT"
-}
+{ "name": "smokesignal"
+, "version": "0.0.0"
+, "description": "Peer to peer networks with node.js"
+, "main": "node.js"
+, "dependencies": { "log4js": "latest"
+                  , "async": "latest" }
+, "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)"
+, "license": "MIT" }
