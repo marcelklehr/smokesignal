@@ -20,7 +20,7 @@ content: { remoteAddress: '0.0.0.0'
          , remotePort: 0 }
 ```
 
-The receiving node must forward it to its peers and/or respond itself...
+The receiving node must forward it to its peers and/or respond itself with a `connect`...
 ```
 content: { respondsTo: "<ID-of-the-above-package>" }
 ```
@@ -50,3 +50,15 @@ A node receiving a `ping` and believing itself to be equal to the ping target mu
 ```
 content: { respondsTo: "<ID-of-the-above-package>" }
 ```
+
+## handshake
+A node may send a `handshake` along with the remoteAddress of the node the package is sent to:
+```
+{ type: "handshake"
+, content: { remoteAddress: "0.0.0.0" }
+}
+```
+
+This is, as you can see, no ordinary package, but should nonetheless result in a similar answer from the remote end on the same connection.
+
+Sending handshakes allows you to determine your public facing IP address.
