@@ -9,6 +9,7 @@ var node = smoke.createNode({
 
 console.log('Port', parseInt(process.argv[2]) || 14)
 console.log('IP', node.remoteAddress)
+console.log('ID', node.id)
 
 var prompt = function() {
   process.stdin.resume()
