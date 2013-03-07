@@ -9,6 +9,10 @@ Scale your real-time app with p2p message passing.
 
 This is currently in development. Most of the things below work already, though...
 
+```
+npm install smokesignal
+```
+
 ## Synopsis
 
 ```js
