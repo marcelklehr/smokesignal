@@ -1,8 +1,7 @@
 { "name": "smokesignal"
-, "version": "0.0.0"
-, "description": "Peer to peer networks with node.js"
-, "main": "node.js"
-, "dependencies": { "log4js": "latest"
-                  , "async": "latest" }
+, "version": "0.0.1"
+, "description": "Build your own small (or larger) peer to peer network with node.js -- useful for stuff like scaling your real-time app!"
+, "main": "index.js"
+, "dependencies": { "log4js": "*" }
 , "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)"
 , "license": "MIT" }
