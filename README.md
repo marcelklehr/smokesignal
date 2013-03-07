@@ -27,7 +27,7 @@ node.on('connect', function() {
   console.log('Connected.')
   
   // and broadcast stuff
-  node.broadcast.emit('my network', 'HEYO! I'm here')
+  node.broadcast.emit('my network', 'HEYO! I\'m here')
 })
 
 node.on('disconnect', function() {
