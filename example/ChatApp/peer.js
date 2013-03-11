@@ -1,14 +1,17 @@
 var smoke = require('../../index')
+  , log4js = require('log4js')
+
+log4js.setGlobalLogLevel('info')
 process.stdin.setEncoding('utf8')
 
 var node = smoke.createNode({
   port: parseInt(process.argv[2]) || 14
-, entrance: {port: 14, address:'192.168.2.100'}
-, localNetmask: '192.168.2.1/255.255.255.0'
+, address: smoke.localIp('192.168.2.1/255.255.255.0')
+, seeds: [{port: 14, address:'192.168.2.100'}]
 })
 
-console.log('Port', parseInt(process.argv[2]) || 14)
-console.log('IP', node.remoteAddress)
+console.log('Port', node.options.port)
+console.log('IP', node.options.address)
 console.log('ID', node.id)
 
 var prompt = function() {
@@ -30,7 +33,7 @@ node.on('disconnect', function() {
 
 // Send message
 process.stdin.on('data', function(d) {
-  node.broadcast.emit('chat', node.remoteAddress+': '+d);
+  node.broadcast.emit('chat', node.options.address+': '+d);
   prompt()
 })
 

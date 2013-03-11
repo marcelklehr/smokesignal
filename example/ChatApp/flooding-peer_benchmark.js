@@ -2,8 +2,8 @@ var smoke = require('../../index')
 
 var node = smoke.createNode({
   port: parseInt(process.argv[2]) || 14
-, entrance: {port: 14, address:'192.168.2.100'}
-, localNetmask: '192.168.2.1/255.255.255.0'
+, address: smoke.localIp('192.168.2.1/255.255.255.0')
+, seeds: [{port: 14, address:'192.168.2.100'}]
 })
 
 
