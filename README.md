@@ -56,7 +56,74 @@ node.stop()
 
 Check out the complete [chat app example](https://github.com/marcelklehr/smokesignal/tree/develop/example/ChatApp)!
 
+## API
+
+### smoke.createNode(opts:object)
+Creates a new node.
+Options:
+
+ * `address`: (compulsory) Your current ip address
+ * `port`: (compulsory) Port to bind at
+ * `minPeerNo`: (optional; default: 3) how many peers this node will actively try to bond with -- you can always connect to more manually!
+ * `maxPeerNo: (optional; default: 5) how many peers this node will accept at max. Infinity for no limit
+ * `seeds`: (optional) an array of known nodes, that are part of the network, e.g. `{port: 0, address: '127.0.0.1'}`
+ * `pingTimeout`: (optional; default: 3000)  The time span in ms after which we consider the ping as failed
+ * `logger`: (optional; default: empty object) An object that may provide the following methods: trace, debug, info, warn, error, fatal
+
+### Class: Node
+
+#### Event: connect
+Emitted when we have at least one peer.
+
+#### Event: disconnect
+Emitted when the last peer disconnects.
+
+#### Node#broadcast
+A socket.io-like remote Event Emitter.
+
+Use `Node#broadcast#emit()` to emit an event to all nodes in the network.
+
+Use `Node#broadcast#on()` to listen on events.
+
+#### Node#start()
+Starts the node. The tcp server will be bound to the specified port and the node will try to enter the network.
+
+#### Node#stop()
+Stops the node. Will disconnect all peers and shut down the tcp server.
+
+#### Node#addPeer(address:string, port:int)
+Tries to connect to the node at the specified address and add it as a peer.
+This should allow people to pass a callback..
+
+#### Node#peerlist
+An instance of `Peerlist`
+
+### Class: Peerlist
+
+#### Event: add
+Emitted when a peer is added. This event is triggered with the corresponding peer object as the first parameter.
+
+#### Event: remove
+Emitted when a peer is removed. This event is triggered with the corresponding peer object as the first parameter.
+
+### Class: Peer
+
+#### Peer#remoteAddress
+The remote address of this peer.
+
+#### Peer#remotePort
+The remote port of this peer.
+
+#### Peer#id
+The smokesignal id of this peer.
+
+#### Peer#emit(event:string, [param:mixed], [param:mixed], ...)
+Emit an event to this peer. The other end will recieve this event on the peer object that represents this node.
+
+#### Peer#on(event:string, handler:function([param:mixed], [param:mixed], ...))
+Listens on an event that was emitted on the peer object that represents this node on the other end of this peer.
+
 ## Todo
 
  * Use event-loop-friendly nextTick call(back)s
- * Remove log4js dep
+ * Maybe make options.port optional, so it just uses an available port
