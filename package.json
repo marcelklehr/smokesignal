@@ -4,8 +4,7 @@
 , "keywords": ["peers", "peer to peer", "p2p", "gossip", "seeds", "event passing", "distributed", "cluster", "scaling", "scale"]
 , "main": "index.js"
 , "dependencies": {
-    "log4js": "*"
-  , "netmask": "*"
+    "netmask": "*"
   , "nssocket": "*"
   }
 , "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)"

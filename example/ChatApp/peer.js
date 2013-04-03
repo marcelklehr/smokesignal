@@ -1,7 +1,5 @@
 var smoke = require('../../index')
-  , log4js = require('log4js')
 
-log4js.setGlobalLogLevel('info')
 process.stdin.setEncoding('utf8')
 
 var node = smoke.createNode({
