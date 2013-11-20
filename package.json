@@ -1,5 +1,5 @@
 { "name": "smokesignal"
-, "version": "0.0.4"
+, "version": "0.1.0"
 , "description": "Build your own small (or larger) peer to peer network with node.js -- useful for stuff like scaling your real-time app!"
 , "keywords": ["peers", "peer to peer", "p2p", "gossip", "seeds", "event passing", "distributed", "cluster", "scaling", "scale"]
 , "main": "index.js"

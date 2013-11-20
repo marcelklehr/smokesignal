@@ -33,7 +33,7 @@ var node = smoke.createNode({
 // listen on network events...
 
 node.on('connect', function() {
-  // Hey, now have at least one peer!
+  // Hey, now we have at least one peer!
   
   // ...and broadcast stuff
   node.broadcast.emit('chat', 'HEYO! I\'m here')
@@ -127,3 +127,12 @@ Listens on an event that was emitted on the peer object that represents this nod
 
  * Use event-loop-friendly nextTick call(back)s
  * Maybe make options.port optional, so it just uses an available port
+ 
+## Legal
+(c) 2012-2013 Marcel Klehr
+MIT License
+
+## Changelog
+
+0.1.0
+ * Don't depend on log4js
