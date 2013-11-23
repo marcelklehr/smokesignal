@@ -1,4 +1,4 @@
-# smokesignal
+# ![smokesignal](https://raw.github.com/marcelklehr/smokesignal/develop/smokesignal.png)
 
 Scale your real-time app with p2p message passing.
 
