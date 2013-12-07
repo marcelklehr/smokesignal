@@ -11,7 +11,7 @@ console.log('Connecting...');
 
 node.on('connect', function() {
   console.log('Connected. Happy flooding!\n');
-  for(var i=0; i<10000; i++) setTimeout(function(i) { node.broadcast.emit('chat', 'floüod!'+i) }.bind(this, i), 30*i)
+  for(var i=0; i<10000; i++) setTimeout(function(i) { node.broadcast.write('floüod!'+i) }.bind(this, i), 30*i)
 })
 
 node.on('disconnected', function() {
