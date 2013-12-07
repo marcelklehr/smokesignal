@@ -38,8 +38,8 @@ var node = smoke.createNode({
 node.on('connect', function() {
   // Hey, now we have at least one peer!
   
-  // ...and broadcast stuff
-  node.broadcast.emit('chat', 'HEYO! I\'m here')
+  // ...and broadcast stuff -- this is an ordinary duplex stream!
+  node.broadcast.write('HEYO! I\'m here')
 })
 
 node.on('disconnect', function() {
