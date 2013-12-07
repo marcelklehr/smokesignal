@@ -2,14 +2,17 @@
 
 Scale your real-time app with p2p message passing.
 
-* *Simple*: Broadcast events or just speak to a specific peer.
+* *Simple*: Broadcast stuff or just speak to a specific peer.
 * *Autonomic*: Have your nodes gather and reorder automatically.
 * *Flexible*: You define, how your nodes will behave.
 * *Self-healing*: Auto-detection of netsplits and disconnect events.
 
-Smokesignal is not a gossip protocol. It does not implement p2p data replication for you. It is a plain, flexible peer-to-peer event passing solution, onto which you can easily build your own replication model.
+Smokesignal is not a gossip protocol. It does not implement p2p data replication for you. It is a plain, flexible peer-to-peer networking solution, onto which you can easily build your own replication model or use some event passing mechanism.
 
-You can connect to new peers manually or allow your node to search for peers automatically. You can listen on peer list events to get notfied when your node added or removed a peer. You can emit events directly to a specific peer or broadcast them to the whole network. If you want, your node will automatically ping the network seed(s) once in a while, to detect netsplits and resolve them automatically.  
+To faciliate this, direct connections from peer to peer as well as a network-wide broadcast (`Node.broadcast`) are simple duplex streams. Thus you can add all favours of stream-goodness, like [remote-events](https://github.com/dominictarr/remote-events), [p2p-rpc-stream](https://github.com/marcelklehr/p2p-rpc-stream), and [what not](https://github.com/substack/stream-handbook#read-more).
+
+You can connect to new peers manually or allow your node to search for peers automatically. You can listen on peer list events to get notified when your node added or removed a peer.
+If you want, your node will automatically ping the network seed(s) once in a while, to detect netsplits and resolve them automatically. 
 Nodes emit a `connect` event when the node adds the first peer, and a `disconnect` event, when the last peer disconnects. If you have specified some seeds, your node will automatically rejoin the network in this case.
 
 This project is in development, so be prepared that things might break in some situations.
@@ -43,9 +46,8 @@ node.on('disconnect', function() {
   // Bah, all peers gone.
 })
 
-node.broadcast.on('chat', function(msg) {
-  // oho, a chat message!
-})
+// Broadcast is a stream
+process.stdin.pipe(node.broadcast).pipe(process.stdout)
 
 // Start the darn thing
 node.start()
@@ -79,11 +81,7 @@ Emitted when we have at least one peer.
 Emitted when the last peer disconnects.
 
 #### Node#broadcast
-A socket.io-like remote Event Emitter.
-
-Use `Node#broadcast#emit()` to emit an event to all nodes in the network.
-
-Use `Node#broadcast#on()` to listen on events.
+A duplex stream. Everyone will get what you write to it, and you'll get everything other people write to it also here.
 
 #### Node#start()
 Starts the node. The tcp server will be bound to the specified port and the node will try to enter the network.
@@ -106,7 +104,17 @@ Emitted when a peer is added. This event is triggered with the corresponding pee
 #### Event: remove
 Emitted when a peer is removed. This event is triggered with the corresponding peer object as the first parameter.
 
+#### Peerlist#inList(my_peer:Peer)
+Returns a boolean indicating whether you're currently friends with that peer.
+
+#### Peerlist#list
+An array containing all nodes you're friends with. Please don't manipulate this directly. Instead, use Node#addPeer to try and connect to a node and Peer#close
+
 ### Class: Peer
+A duplex stream. Write something to it and the other end will get it out of their representational Peer object for your node. Vice versa, if the other side writes something to their object, you'll be able read it here.
+
+#### Event: end
+Emitted when all ties to this node have been cut.
 
 #### Peer#remoteAddress
 The remote address of this peer.
@@ -115,13 +123,10 @@ The remote address of this peer.
 The remote port of this peer.
 
 #### Peer#id
-The smokesignal id of this peer.
+The network-wide id of this peer.
 
-#### Peer#emit(event:string, [param:mixed], [param:mixed], ...)
-Emit an event to this peer. The other end will recieve this event on the peer object that represents this node.
-
-#### Peer#on(event:string, handler:function([param:mixed], [param:mixed], ...))
-Listens on an event that was emitted on the peer object that represents this node on the other end of this peer.
+#### Peer#close
+Cut's everything that ties you to this node.
 
 ## Todo
 
@@ -133,6 +138,9 @@ Listens on an event that was emitted on the peer object that represents this nod
 MIT License
 
 ## Changelog
+
+0.2.0
+ * Replace socket.io-like interfaces with proper duplex streams
 
 0.1.0
  * Don't depend on log4js
