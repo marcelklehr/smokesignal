@@ -139,6 +139,9 @@ MIT License
 
 ## Changelog
 
+0.2.1
+ * Correctly inherit from EventEmitter
+
 0.2.0
  * Replace socket.io-like interfaces with proper duplex streams
 
