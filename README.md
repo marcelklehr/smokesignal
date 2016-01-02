@@ -67,7 +67,7 @@ Options:
  * `address`: (compulsory) Your current ip address
  * `port`: (compulsory) Port to bind at
  * `minPeerNo`: (optional; default: 3) how many peers this node will actively try to bond with -- you can always connect to more manually!
- * `maxPeerNo: (optional; default: 5) how many peers this node will accept at max. Infinity for no limit
+ * `maxPeerNo`: (optional; default: 5) how many peers this node will accept at max. Infinity for no limit
  * `seeds`: (optional) an array of known nodes, that are part of the network, e.g. `{port: 0, address: '127.0.0.1'}`
  * `pingTimeout`: (optional; default: 3000)  The time span in ms after which we consider the ping as failed
  * `logger`: (optional; default: empty object) An object that may provide the following methods: trace, debug, info, warn, error, fatal
