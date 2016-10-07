@@ -1,15 +1,30 @@
-{ "name": "smokesignal"
-, "version": "0.2.1"
-, "description": "Build your own small (or larger) peer to peer network."
-, "keywords": ["peers", "peer to peer", "p2p", "gossip", "seeds", "event passing", "distributed", "cluster", "scaling", "scale", "stream", "streams"]
-, "main": "index.js"
-, "dependencies": {
-    "netmask": "*"
-  , "nssocket": "*"
-  }
-, "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)"
-, "repository": {
-    "type": "git"
-  , "url": "https://github.com/marcelklehr/smokesignal.git"
-  }
-, "license": "MIT" }
+{
+  "name": "smokesignal",
+  "version": "0.2.2",
+  "description": "Build your own small (or larger) peer to peer network.",
+  "keywords": [
+    "peers",
+    "peer to peer",
+    "p2p",
+    "gossip",
+    "seeds",
+    "event passing",
+    "distributed",
+    "cluster",
+    "scaling",
+    "scale",
+    "stream",
+    "streams"
+  ],
+  "main": "index.js",
+  "dependencies": {
+    "netmask": "*",
+    "nssocket": "*"
+  },
+  "author": "marcelklehr <mklehr@gmx.net> (Marcel Klehr)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcelklehr/smokesignal.git"
+  },
+  "license": "MIT"
+}
