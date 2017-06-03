@@ -93,7 +93,7 @@ Stops the node. Will disconnect all peers and shut down the tcp server.
 Tries to connect to the node at the specified address and add it as a peer.
 This should allow people to pass a callback..
 
-#### Node#peerlist
+#### Node#peers
 An instance of `Peerlist`
 
 ### Class: Peerlist
